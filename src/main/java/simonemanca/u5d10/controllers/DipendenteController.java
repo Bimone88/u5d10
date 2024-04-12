@@ -7,7 +7,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import simonemanca.u5d10.entities.Dipendente;
+import simonemanca.u5d10.payloads.DipendenteDTO;
 import simonemanca.u5d10.services.EmployeeService;
+
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,20 +39,20 @@ public class DipendenteController {
     }
 
     @PostMapping
-    public ResponseEntity<Dipendente> createEmployee(@RequestBody Dipendente dipendente) {
+    public ResponseEntity<Dipendente> createEmployee(@Valid @RequestBody DipendenteDTO dipendenteDTO) {
+        Dipendente dipendente = convertiDtoADipendente(dipendenteDTO);
         Dipendente savedDipendente = employeeService.saveEmployee(dipendente);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedDipendente);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Dipendente> updateEmployee(@PathVariable UUID id, @RequestBody Dipendente dipendente) {
-        return employeeService.findEmployeeById(id)
-                .map(existingDipendente -> {
-                    dipendente.setId(existingDipendente.getId());
-                    Dipendente updatedDipendente = employeeService.saveEmployee(dipendente);
-                    return ResponseEntity.ok(updatedDipendente);
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Dipendente> updateEmployee(@PathVariable UUID id, @Valid @RequestBody DipendenteDTO dipendenteDTO) {
+        Dipendente existingDipendente = employeeService.findEmployeeById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Dipendente non trovato"));
+        Dipendente dipendenteToUpdate = convertiDtoADipendente(dipendenteDTO);
+        dipendenteToUpdate.setId(existingDipendente.getId()); // Preserva l'ID originale
+        Dipendente updatedDipendente = employeeService.saveEmployee(dipendenteToUpdate);
+        return ResponseEntity.ok(updatedDipendente);
     }
 
     @DeleteMapping("/{id}")
@@ -58,19 +61,28 @@ public class DipendenteController {
         return ResponseEntity.noContent().build();
     }
 
-    // Endpoint per l'upload dell'immagine del profilo
     @PostMapping("/{id}/upload-immagine")
     public ResponseEntity<String> uploadImmagineProfilo(@PathVariable UUID id, @RequestParam("file") MultipartFile file) {
+        String urlImmagazzinato = ""; // = Logica per ottenere l'URL dell'immagine caricata
+
         Dipendente dipendente = employeeService.findEmployeeById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Dipendente non trovato"));
-
-        // Per ora, assumiamo che l'URL venga generato e salvato correttamente
-        String urlImmagazzinato = "http://example.com/path/to/image"; // Questo è solo un placeholder
         dipendente.setImmagineUrl(urlImmagazzinato);
         employeeService.saveEmployee(dipendente);
 
         return ResponseEntity.ok("Immagine caricata con successo: " + urlImmagazzinato);
     }
+
+    // Metodo helper per convertire DipendenteDTO in entità Dipendente
+    private Dipendente convertiDtoADipendente(DipendenteDTO dto) {
+        Dipendente dipendente = new Dipendente();
+        dipendente.setUsername(dto.username());
+        dipendente.setNome(dto.nome());
+        dipendente.setCognome(dto.cognome());
+        dipendente.setEmail(dto.email());
+        return dipendente;
+    }
 }
+
 
 
