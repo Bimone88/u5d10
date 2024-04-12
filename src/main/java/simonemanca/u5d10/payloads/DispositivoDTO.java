@@ -12,7 +12,7 @@ public record DispositivoDTO(
         @NotEmpty(message = "ATTENZIONE! Lo stato è obbligatorio")
         @Size(min = 3, max = 20, message = "Lo stato deve essere compreso tra i 3 e i 20 caratteri")
         String stato,
-        UUID dipendenteId  // Assumiamo che l'assegnazione può essere opzionale al momento della creazione
+        UUID dipendenteId
 ) {
 }
 
