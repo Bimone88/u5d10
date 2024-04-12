@@ -13,6 +13,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>("Si è verificato un errore", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    
+
 }
 
+// 500 Internal Server Error
