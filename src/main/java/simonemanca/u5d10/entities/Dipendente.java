@@ -32,7 +32,7 @@ public class Dipendente {
     @OneToMany(mappedBy = "dipendente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Dispositivo> dispositivi;
 
-    // Potresti anche voler aggiungere un costruttore con argomenti se lo ritieni necessario
+
     public Dipendente(String username, String nome, String cognome, String email) {
         this.username = username;
         this.nome = nome;
@@ -40,5 +40,4 @@ public class Dipendente {
         this.email = email;
     }
 }
-
 

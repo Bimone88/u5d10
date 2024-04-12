@@ -20,13 +20,13 @@ public class Dispositivo {
     private String tipo;
 
     @Column(nullable = false)
-    private String stato;  // "disponibile", "assegnato", "in manutenzione", "dismesso"
+    private String stato;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dipendente_id")
     private Dipendente dipendente;
 
-    // Aggiungi costruttori, metodi o logica di business secondo necessità
+
     public Dispositivo(String tipo, String stato) {
         this.tipo = tipo;
         this.stato = stato;
