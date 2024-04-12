@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/dipendenti")
+@RequestMapping("/api/dipendenti")//vedvmmmmmmmmmmmm
 public class DipendenteController {
 
     private final EmployeeService employeeService;
