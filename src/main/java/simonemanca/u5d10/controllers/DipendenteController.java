@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import simonemanca.u5d10.entities.Dipendente;
 import simonemanca.u5d10.services.EmployeeService;
 import java.util.List;
@@ -55,5 +57,20 @@ public class DipendenteController {
         employeeService.deleteEmployee(id);
         return ResponseEntity.noContent().build();
     }
+
+    // Endpoint per l'upload dell'immagine del profilo
+    @PostMapping("/{id}/upload-immagine")
+    public ResponseEntity<String> uploadImmagineProfilo(@PathVariable UUID id, @RequestParam("file") MultipartFile file) {
+        Dipendente dipendente = employeeService.findEmployeeById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Dipendente non trovato"));
+
+        // Per ora, assumiamo che l'URL venga generato e salvato correttamente
+        String urlImmagazzinato = "http://example.com/path/to/image"; // Questo è solo un placeholder
+        dipendente.setImmagineUrl(urlImmagazzinato);
+        employeeService.saveEmployee(dipendente);
+
+        return ResponseEntity.ok("Immagine caricata con successo: " + urlImmagazzinato);
+    }
 }
+
 

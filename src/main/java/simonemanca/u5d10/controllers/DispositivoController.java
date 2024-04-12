@@ -4,8 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import simonemanca.u5d10.entities.Dispositivo;
+import simonemanca.u5d10.entities.Dipendente;
 import simonemanca.u5d10.services.DeviceService;
+import simonemanca.u5d10.services.EmployeeService;
 import java.util.List;
 import java.util.UUID;
 
@@ -14,10 +17,12 @@ import java.util.UUID;
 public class DispositivoController {
 
     private final DeviceService deviceService;
+    private final EmployeeService employeeService;
 
     @Autowired
-    public DispositivoController(DeviceService deviceService) {
+    public DispositivoController(DeviceService deviceService, EmployeeService employeeService) {
         this.deviceService = deviceService;
+        this.employeeService = employeeService;
     }
 
     @GetMapping
@@ -55,5 +60,19 @@ public class DispositivoController {
         deviceService.deleteDevice(id);
         return ResponseEntity.noContent().build();
     }
+
+    // Nuovo endpoint per assegnare un dispositivo a un dipendente
+    @PutMapping("/{dispositivoId}/assegna-dipendente/{dipendenteId}")
+    public ResponseEntity<Dispositivo> assegnaDispositivoADipendente(@PathVariable UUID dispositivoId, @PathVariable UUID dipendenteId) {
+        Dispositivo dispositivo = deviceService.findDeviceById(dispositivoId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Dispositivo non trovato"));
+        Dipendente dipendente = employeeService.findEmployeeById(dipendenteId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Dipendente non trovato"));
+
+        dispositivo.setDipendente(dipendente);
+        dispositivo = deviceService.saveDevice(dispositivo);
+        return ResponseEntity.ok(dispositivo);
+    }
 }
+
 
